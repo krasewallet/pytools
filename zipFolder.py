@@ -9,7 +9,7 @@ def zipFolder(baseDir,zip_name):
     fpath = dirpath.replace(baseDir,'') #这一句很重要，不replace的话，就从根目录开始复制
     for filename in filenames:
       z.write(os.path.join(dirpath, filename),os.path.join(fpath, filename))
-      print('压缩成功')
+      print(os.path.join(dirpath, filename))
   z.close()
 
 if __name__ =="__main__":
