@@ -12,9 +12,18 @@ def zipFolder(baseDir,zip_name):
       print(os.path.join(dirpath, filename))
   z.close()
 
+def unzip(zip_name,baseDir):
+  z = zipfile.ZipFile(zip_name, 'r')
+  z.extractall(path=baseDir)
+  z.close()
+
 if __name__ =="__main__":
-  parser = argparse.ArgumentParser(description="python image tools")
+  parser = argparse.ArgumentParser(description="python zip/unzip tools")
   parser.add_argument("src")
   parser.add_argument("dst")
+  parser.add_argument("-u","--unzip",action="store_true")
   args = parser.parse_args()
-  zipFolder(args.src,args.dst)
+  if args.unzip:
+    unzip(args.src,args.dst)
+  else:
+    zipFolder(args.src,args.dst)
