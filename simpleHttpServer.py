@@ -130,6 +130,8 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
             }
           if boundary in line:
             if writter:
+              writter.seek(-2,2)
+              writter.truncate()
               value[b'value'] = b'' if value[b'file'] else writter.getvalue()
               writter.close()
             form.setdefault(key,value)
