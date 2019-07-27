@@ -6,6 +6,7 @@ import html
 import io
 import shutil
 import socketserver
+import re
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
   def do_GET(self):
@@ -18,10 +19,23 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
       f.close()
     else:
       f = self.show_file(path)
-      shutil.copyfileobj(f, self.wfile)
-      f.close()
+      if f:
+        shutil.copyfileobj(f, self.wfile)
+        f.close()
+
   def do_POST(self):
-    pass
+    path = os.path.dirname(__file__)
+    for name in urllib.parse.unquote(self.path).split('/'):
+      path = os.path.join(path,name)
+    self.parseFormData(path)
+
+    self.send_response(200)
+    success = b'success'
+    self.send_header("Content-type", "text/plain")
+    self.send_header("Content-Length", str(len(success)))
+    self.end_headers()
+    self.wfile.write(success)
+
   def show_file(self,file):
     try:
       f = open(file,'rb')
@@ -29,9 +43,10 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
       self.send_header("Content-type", "application/octet-stream")
       self.send_header("Content-Length", os.fstat(f.fileno())[6])
       self.end_headers()
+      return f
     except Exception as e:
       self.send_error(404,str(e))
-    return f
+      
   def list_dir(self, folder):
     files = os.listdir(folder)
     f = io.BytesIO()
@@ -73,6 +88,58 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
     self.send_header("Content-Length", str(length))
     self.end_headers()
     return f
+  
+  def parseFormData(self,path):
+    # 'multipart/form-data; boundary=----WebKitFormBoundary5iYS2bLq7sBRFNMk'
+    mBoundary = re.findall(r'boundary=(.*)',self.headers['Content-Type'])
+    remainbytes = int(self.headers['Content-length'])
+    form = {}
+    begin = False
+    key = None
+    value = None
+    writter = None
+    if mBoundary:
+      boundary = mBoundary[0].encode('utf-8')
+      while remainbytes > 0:
+        line = self.rfile.readline()
+        print(line)
+        remainbytes -= len(line)
+        if begin:
+          if key and not value[b'value']:
+              if value[b'file'] and not value[b'mime']:
+                m = re.match(b'Content-Type: (.*)\r\n',line)
+                value[b'mime'] = m.group(1)
+              elif not writter:
+                if value[b'file']:
+                  writter = open(value[b'path'],'wb')
+                else:
+                  writter = io.BytesIO()
+              elif not boundary in line:
+                writter.write(line)
+
+          if line.startswith(b'Content-Disposition:'):
+            # b'Content-Disposition: form-data; name="file"; filename="&#26032;&#24314;&#25991;&#26412;&#25991;&#26723;.txt"\r\n'
+            result = re.findall(b'\s(\w+)="(.*?)"',line)
+            params = dict(result)
+            key = params[b'name']
+            value = {
+              b'file': b'filename' in params,
+              b'path': os.path.join(path,html.unescape(params[b'filename'].decode())) if b'filename' in params else None,
+              b'mime': None,
+              b'value': None
+            }
+          if boundary in line:
+            if writter:
+              value[b'value'] = b'' if value[b'file'] else writter.getvalue()
+              writter.close()
+            form.setdefault(key,value)
+            begin = False
+            key = None
+            value = None
+            writter = None
+        if not begin and boundary in line:
+          begin = True
+      return form
 if __name__ == "__main__":
   class ThreadingServer(socketserver.ThreadingMixIn,http.server.HTTPServer):
     pass
