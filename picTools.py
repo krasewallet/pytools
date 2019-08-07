@@ -10,8 +10,8 @@ def imageTool(options):
     p.paste(img, (0, 0, img.size[0],img.size[1]), img)
     img = p
   maps = {}
-  if options.icon_size:
-    maps["sizes"] = [(options.icon_size,options.icon_size)]
+  if options.icon:
+    maps["sizes"] = [(16,16),(32,32),(64,64),(128,128),(256,256)]
   if options.scale:
     m = re.match(r"(\d+)\*(\d+)",options.scale)
     img = img.resize(tuple(map(int,m.groups())))
@@ -22,7 +22,7 @@ if __name__ == "__main__":
   parser.add_argument("source")
   parser.add_argument("output")
   parser.add_argument("--scale") 
-  parser.add_argument("--icon_size",type=int)
+  parser.add_argument("--icon",action="store_true")
   parser.add_argument("--bk")
 
   args = parser.parse_args()
