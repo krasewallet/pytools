@@ -5,14 +5,15 @@ import re
 
 def imageTool(options):
   img = PIL.Image.open(options.source)
-  if not len(options.bk):
-    p = PIL.Image.new('RGBA', img.size, (255,255,255))
-    p.paste(img, (0, 0, img.size[0],img.size[1]), img)
-    img = p
-  else:
-    p = PIL.Image.new('RGBA', tuple(map(int,options.bk)), (255,255,255))
-    p.paste(img, (0, 0, img.size[0],img.size[1]), img)
-    img = p
+  if options.bk is not None:
+    if not len(options.bk):
+      p = PIL.Image.new('RGBA', img.size, (255,255,255))
+      p.paste(img, (0, 0, img.size[0],img.size[1]), img)
+      img = p
+    else:
+      p = PIL.Image.new('RGBA', tuple(map(int,options.bk)), (255,255,255))
+      p.paste(img, (0, 0, img.size[0],img.size[1]), img)
+      img = p
   maps = {}
   if options.icon:
     maps["sizes"] = [(16,16),(32,32),(64,64),(128,128),(256,256)]
