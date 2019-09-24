@@ -5,8 +5,12 @@ import re
 
 def imageTool(options):
   img = PIL.Image.open(options.source)
-  if options.bk:
+  if not len(options.bk):
     p = PIL.Image.new('RGBA', img.size, (255,255,255))
+    p.paste(img, (0, 0, img.size[0],img.size[1]), img)
+    img = p
+  else:
+    p = PIL.Image.new('RGBA', tuple(map(int,options.bk)), (255,255,255))
     p.paste(img, (0, 0, img.size[0],img.size[1]), img)
     img = p
   maps = {}
@@ -23,7 +27,7 @@ if __name__ == "__main__":
   parser.add_argument("output")
   parser.add_argument("--scale") 
   parser.add_argument("--icon",action="store_true")
-  parser.add_argument("--bk")
+  parser.add_argument("--bk",nargs='*')
 
   args = parser.parse_args()
 
