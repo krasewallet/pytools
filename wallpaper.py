@@ -5,7 +5,7 @@ from pathlib import Path
 import requests,ctypes,random,os,sys
 
 def wallpaperDownload(folder):
-	wallpaperSiteUrl = "https://wallhaven.cc/random"
+	wallpaperSiteUrl = "https://wallhaven.cc/search?categories=111&purity=100&ratios=16x9%2C16x10&sorting=random&order=desc"
 	content = requests.get(wallpaperSiteUrl,verify = False).content.decode()
 	doc = PyQuery(content)
 	preview = random.choice(doc("figure .preview"))
