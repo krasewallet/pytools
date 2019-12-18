@@ -25,7 +25,7 @@ def wallpaperDownload(folder):
 def set_wallpaper(picpath):	
 	SPI_SETDESKWALLPAPER = 20
 	ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, picpath , 0)
-	subprocess.run(f'Powershell.exe -executionpolicy remotesigned -File SetLockScreen.ps1 -Image "{picpath}"')
+	subprocess.run(f'Powershell.exe -executionpolicy remotesigned -File SetLockScreen.ps1 -Image "{picpath}"',shell=True,capture_output=True,cwd=Path(__file__).parent)
 
 if __name__ == '__main__':
 	img = wallpaperDownload(sys.argv[1])
