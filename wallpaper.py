@@ -2,7 +2,7 @@
 from pyquery import PyQuery
 from urllib.parse import urlparse
 from pathlib import Path
-import requests,ctypes,random,os,sys
+import requests,ctypes,random,os,sys,subprocess
 
 def wallpaperDownload(folder):
 	wallpaperSiteUrl = "https://wallhaven.cc/search?categories=111&purity=100&ratios=16x9%2C16x10&sorting=random&order=desc"
@@ -20,13 +20,12 @@ def wallpaperDownload(folder):
 	if response.status_code == 200:
 		with open(save,'wb') as f:
 			f.write(response.content)
-	else:
-		save = wallpaperDownload()
 	return save
 
 def set_wallpaper(picpath):	
 	SPI_SETDESKWALLPAPER = 20
 	ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, picpath , 0)
+	subprocess.run(f'Powershell.exe -executionpolicy remotesigned -File SetLockScreen.ps1 -Image "{picpath}"')
 
 if __name__ == '__main__':
 	img = wallpaperDownload(sys.argv[1])
