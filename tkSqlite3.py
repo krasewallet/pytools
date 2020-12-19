@@ -37,7 +37,7 @@ class TkSqlit3:
     self.scrollBarY.pack(side=RIGHT, fill=Y)
 
   def openSelectDialog(self):
-    self.db3 = askopenfilename(filetypes=[('db', '*.db', '*.sqlite3')],initialdir='.')
+    self.db3 = askopenfilename(filetypes=[('db', '*.db'), ('sqlite3', '*.sqlite3')],initialdir='.')
     self.conn = sqlite3.connect(self.db3)
     self.cursor = self.conn.cursor()
     self.root.title(self.db3)
