@@ -7,12 +7,15 @@ def imageTool(options):
   img = PIL.Image.open(options.source)
   if options.bk is not None:
     if not len(options.bk):
-      p = PIL.Image.new('RGBA', img.size, (255,255,255))
+      p = PIL.Image.new('RGBA', img.size, (255,255,255,0))
       p.paste(img, (0, 0, img.size[0],img.size[1]), img)
       img = p
     else:
-      p = PIL.Image.new('RGBA', tuple(map(int,options.bk)), (255,255,255))
-      p.paste(img, (0, 0, img.size[0],img.size[1]), img)
+      bkSize = tuple(map(int,options.bk))
+      p = PIL.Image.new('RGBA', bkSize, (255,255,255,0))
+      x = (bkSize[0] - img.size[0]) // 2
+      y = (bkSize[1] - img.size[1]) // 2
+      p.paste(img, (x, y, x + img.size[0],y + img.size[1]), img)
       img = p
   maps = {}
   if options.icon:
